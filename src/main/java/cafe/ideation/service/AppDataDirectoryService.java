@@ -13,8 +13,10 @@ import java.util.Properties;
 @Service
 public class AppDataDirectoryService {
 
+    public record DataCollection(String name) {}
+
     private static final String APPLICATION_DATA_DIRECTORY = "application.data.directory";
-    private static final String NOTES_SUBDIR = "notes";
+
     private final App app;
 
     public AppDataDirectoryService(App app) {
@@ -39,16 +41,27 @@ public class AppDataDirectoryService {
     private void initFolders(String dir) {
         try {
             Files.createDirectories(Paths.get(dir));
-            Files.createDirectories(Paths.get(dir, NOTES_SUBDIR));
         } catch (IOException e) {
             throw new RuntimeException("Failed to initialize app data directory", e);
         }
     }
 
-    public Path getNotesDirectory() {
+    public void registerDataCollection(DataCollection dataCollection) {
+        try {
+            Files.createDirectories((getApplicationDataDirectory().resolve(dataCollection.name())));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to initialize " + dataCollection.name() + " data collection", e);
+        }
+    }
+
+    public Path getDataCollectionPath(DataCollection dataCollection) {
+        return getApplicationDataDirectory().resolve(dataCollection.name());
+    }
+
+    private Path getApplicationDataDirectory() {
         Properties homeProperties = app.loadHomeProperties();
         String applicationDataDir = homeProperties.getProperty(APPLICATION_DATA_DIRECTORY);
-        return Paths.get(applicationDataDir, NOTES_SUBDIR);
+        return Paths.get(applicationDataDir);
     }
 
     public File getDefaultDirectory() {

@@ -9,10 +9,12 @@ Feature: Create note
         Then the User is prompted to create a new note
 
     Scenario: Create note
-        Given the User has chosed to create a note
+        Given the User has chosen to create a note
         When the User creates a note
         Then a new Note is created
         And it has a created date of now
+        And it has a modified date of now
         And it has empty content
         And it has a plain text content type
-        And 
+        And it has an empty title
+        And it is ready for immediate editing

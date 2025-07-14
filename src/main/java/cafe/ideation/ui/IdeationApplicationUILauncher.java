@@ -51,7 +51,19 @@ public class IdeationApplicationUILauncher implements CommandLineRunner {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(600, 400);
             frame.setLayout(new BorderLayout());
-            frame.add(new NoteListPanel(noteService), BorderLayout.CENTER);
+            if (noteService.getNoteCount() == 0) {
+                WelcomePanel welcomePanel = new WelcomePanel(noteService, () -> {
+                    frame.getContentPane().removeAll();
+                    NoteListPanel noteListPanel = new NoteListPanel(noteService);
+                    frame.add(noteListPanel, BorderLayout.CENTER);
+                    frame.revalidate();
+                    frame.repaint();
+                });
+                frame.add(welcomePanel, BorderLayout.CENTER);
+            } else {
+                NoteListPanel noteListPanel = new NoteListPanel(noteService);
+                frame.add(noteListPanel, BorderLayout.CENTER);
+            }
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
