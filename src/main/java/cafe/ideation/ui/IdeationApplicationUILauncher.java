@@ -49,20 +49,20 @@ public class IdeationApplicationUILauncher implements CommandLineRunner {
             }
             JFrame frame = new JFrame("Notes");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(600, 400);
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             frame.setLayout(new BorderLayout());
             if (noteService.getNoteCount() == 0) {
                 WelcomePanel welcomePanel = new WelcomePanel(noteService, () -> {
                     frame.getContentPane().removeAll();
-                    NoteListPanel noteListPanel = new NoteListPanel(noteService);
-                    frame.add(noteListPanel, BorderLayout.CENTER);
+                    NotesMainPanel notesMainPanel = new NotesMainPanel(noteService);
+                    frame.add(notesMainPanel, BorderLayout.CENTER);
                     frame.revalidate();
                     frame.repaint();
                 });
                 frame.add(welcomePanel, BorderLayout.CENTER);
             } else {
-                NoteListPanel noteListPanel = new NoteListPanel(noteService);
-                frame.add(noteListPanel, BorderLayout.CENTER);
+                NotesMainPanel notesMainPanel = new NotesMainPanel(noteService);
+                frame.add(notesMainPanel, BorderLayout.CENTER);
             }
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
