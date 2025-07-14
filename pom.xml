@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
     <name>Ideation Project</name>
     <description>A simple Maven project.</description>
-    
+
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -32,6 +32,11 @@
             <groupId>com.github.teggr</groupId>
             <artifactId>cli-power-tools</artifactId>
             <version>main-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>3.6</version>
         </dependency>
     </dependencies>
 
