@@ -5,6 +5,9 @@ import cafe.ideation.service.NoteService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class NotesMainPanel extends JPanel {
@@ -57,11 +60,29 @@ public class NotesMainPanel extends JPanel {
         notesList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof Note note) {
-                    label.setText(note.getTitle().isEmpty() ? "Untitled" : note.getTitle());
+                JPanel panel = new JPanel(new BorderLayout());
+                panel.setOpaque(true);
+                if (isSelected) {
+                    panel.setBackground(list.getSelectionBackground());
+                } else {
+                    panel.setBackground(list.getBackground());
                 }
-                return label;
+                if (value instanceof Note note) {
+                    JLabel titleLabel = new JLabel(note.getTitle().isEmpty() ? "Untitled" : note.getTitle());
+                    titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
+                    LocalDateTime mostRecent = note.getDateUpdated().isAfter(note.getDateCreated()) ? note.getDateUpdated() : note.getDateCreated();
+                    String dateText;
+                    if (mostRecent.toLocalDate().equals(LocalDate.now())) {
+                        dateText = mostRecent.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+                    } else {
+                        dateText = mostRecent.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    }
+                    JLabel dateLabel = new JLabel(dateText);
+                    dateLabel.setFont(dateLabel.getFont().deriveFont(Font.PLAIN, 10f));
+                    panel.add(titleLabel, BorderLayout.NORTH);
+                    panel.add(dateLabel, BorderLayout.SOUTH);
+                }
+                return panel;
             }
         });
 
