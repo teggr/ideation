@@ -127,6 +127,16 @@ public class NoteService {
         addNote(note);
     }
 
+    public void saveNote(Note note, String newContent) {
+        note.setContent(newContent);
+        note.setDateUpdated(java.time.LocalDateTime.now());
+        // Set title to first line of content if available
+        String[] lines = newContent.split("\r?\n", 2);
+        String newTitle = lines.length > 0 && !lines[0].isBlank() ? lines[0] : "Untitled";
+        note.setTitle(newTitle);
+        editNote(note);
+    }
+
     private String getFileExtension(String contentType) {
         return contentType.equals("text/plain") ? "txt" : "dat";
     }

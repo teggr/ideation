@@ -100,15 +100,31 @@ public class NotesMainPanel extends JPanel {
                 return;
             }
         }
-        NotePanel notePanel = new NotePanel(note);
+        NotePanel notePanel = new NotePanel(note, noteService);
         JButton closeButton = new JButton("Close");
-        closeButton.addActionListener(e -> tabbedPane.remove(notePanel));
         JPanel tabHeader = new JPanel(new BorderLayout());
-        tabHeader.add(new JLabel(tabTitle), BorderLayout.CENTER);
+        JLabel titleLabel = new JLabel(tabTitle);
+        tabHeader.add(titleLabel, BorderLayout.CENTER);
         tabHeader.add(closeButton, BorderLayout.EAST);
+        closeButton.addActionListener(e -> tabbedPane.remove(notePanel));
         tabbedPane.addTab(tabTitle, notePanel);
-        tabbedPane.setTabComponentAt(tabbedPane.getTabCount() - 1, tabHeader);
+        int tabIdx = tabbedPane.getTabCount() - 1;
+        tabbedPane.setTabComponentAt(tabIdx, tabHeader);
         tabbedPane.setSelectedComponent(notePanel);
+
+        // Update tab title if note title changes after save
+        notePanel.setOnTitleChanged(newTitle -> {
+            titleLabel.setText(newTitle);
+            tabbedPane.setTitleAt(tabIdx, newTitle);
+        });
+        // Update the notes list when the note is saved (title/date may have changed)
+        notePanel.setOnNoteSaved(() -> {
+            int idx = listModel.indexOf(note);
+            if (idx >= 0) {
+                // Fire contentsChanged to update renderer
+                listModel.set(idx, note);
+            }
+        });
     }
 
     public void showNote(Note newNote) {
