@@ -2,6 +2,7 @@ package cafe.ideation.ui;
 
 import cafe.ideation.model.Note;
 import cafe.ideation.service.NoteService;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
@@ -21,10 +22,28 @@ public class NotesMainPanel extends JPanel {
         notesList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         tabbedPane = new JTabbedPane();
 
+        // Toolbar setup
+        JToolBar toolBar = new JToolBar();
+        JButton createNoteButton = new JButton("Create Note");
+        createNoteButton.addActionListener(e -> {
+            Note newNote = noteService.createNote();
+            listModel.addElement(newNote);
+            notesList.setSelectedValue(newNote, true);
+            openNoteTab(newNote);
+        });
+        toolBar.add(createNoteButton);
+        add(toolBar, BorderLayout.PAGE_START);
+
         // Load notes into list
         List<Note> notes = noteService.listNotes();
         for (Note note : notes) {
             listModel.addElement(note);
+        }
+
+        // Select and show the first note if available
+        if (!notes.isEmpty()) {
+            notesList.setSelectedIndex(0);
+            openNoteTab(notes.get(0));
         }
 
         notesList.addListSelectionListener(e -> {
@@ -32,6 +51,17 @@ public class NotesMainPanel extends JPanel {
                 for (Note selectedNote : notesList.getSelectedValuesList()) {
                     openNoteTab(selectedNote);
                 }
+            }
+        });
+
+        notesList.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Note note) {
+                    label.setText(note.getTitle().isEmpty() ? "Untitled" : note.getTitle());
+                }
+                return label;
             }
         });
 
@@ -59,4 +89,11 @@ public class NotesMainPanel extends JPanel {
         tabbedPane.setTabComponentAt(tabbedPane.getTabCount() - 1, tabHeader);
         tabbedPane.setSelectedComponent(notePanel);
     }
+
+    public void showNote(Note newNote) {
+        listModel.addElement(newNote);
+        notesList.setSelectedValue(newNote, true);
+        openNoteTab(newNote);
+    }
+
 }

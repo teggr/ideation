@@ -7,6 +7,8 @@ import dev.rebelcraft.cli.App;
 
 import javax.swing.*;
 import java.awt.*;
+
+import cafe.ideation.model.Note;
 import cafe.ideation.service.AppDataDirectoryService;
 import com.formdev.flatlaf.FlatLightLaf;
 
@@ -51,6 +53,13 @@ public class IdeationApplicationUILauncher implements CommandLineRunner {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             frame.setLayout(new BorderLayout());
+
+            JMenuBar menuBar = new JMenuBar();
+            JMenu fileMenu = new JMenu("File");
+            
+            menuBar.add(fileMenu);
+            frame.setJMenuBar(menuBar);
+
             if (noteService.getNoteCount() == 0) {
                 WelcomePanel welcomePanel = new WelcomePanel(noteService, () -> {
                     frame.getContentPane().removeAll();
@@ -63,6 +72,13 @@ public class IdeationApplicationUILauncher implements CommandLineRunner {
             } else {
                 NotesMainPanel notesMainPanel = new NotesMainPanel(noteService);
                 frame.add(notesMainPanel, BorderLayout.CENTER);
+
+                JMenuItem createNoteItem = new JMenuItem("Create Note");
+                createNoteItem.addActionListener(e -> {
+                    Note  newNote = noteService.createNote();
+                    notesMainPanel.showNote(newNote);
+                });
+                fileMenu.add(createNoteItem);
             }
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
