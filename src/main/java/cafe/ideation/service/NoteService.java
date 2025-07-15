@@ -141,14 +141,20 @@ public class NoteService {
         return contentType.equals("text/plain") ? "txt" : "dat";
     }
 
+
+    private String escapeFilename(String input) {
+        // Remove or replace characters not allowed in filenames (Windows, macOS, Linux safe)
+        return input.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+    }
+
     private File getMetaFile(Note note) {
-        String title = (note.getTitle() == null || note.getTitle().isEmpty()) ? generateRandomFilename() : note.getTitle();
+        String title = (note.getTitle() == null || note.getTitle().isEmpty()) ? generateRandomFilename() : escapeFilename(note.getTitle());
         Path notesDir = appDataDirectoryService.getDataCollectionPath(NOTES_DATA_COLLECTION);
         return notesDir.resolve(title + ".properties").toFile();
     }
 
     private File getContentFile(Note note) {
-        String title = (note.getTitle() == null || note.getTitle().isEmpty()) ? generateRandomFilename() : note.getTitle();
+        String title = (note.getTitle() == null || note.getTitle().isEmpty()) ? generateRandomFilename() : escapeFilename(note.getTitle());
         Path notesDir = appDataDirectoryService.getDataCollectionPath(NOTES_DATA_COLLECTION);
         String ext = getFileExtension(note.getContentType());
         return notesDir.resolve(title + "." + ext).toFile();

@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class NotesMainPanel extends JPanel {
+ 
     private final NoteService noteService;
     private final JList<Note> notesList;
     private final DefaultListModel<Note> listModel;
@@ -35,6 +36,19 @@ public class NotesMainPanel extends JPanel {
             openNoteTab(newNote);
         });
         toolBar.add(createNoteButton);
+
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(e -> saveCurrentTabIfDirty());
+        toolBar.add(saveButton);
+
+        JButton saveAllButton = new JButton("Save All");
+        saveAllButton.addActionListener(e -> saveAllTabsIfDirty());
+        toolBar.add(saveAllButton);
+
+        JButton closeAllButton = new JButton("Close All");
+        closeAllButton.addActionListener(e -> closeAllTabsWithPrompt());
+        toolBar.add(closeAllButton);
+
         add(toolBar, BorderLayout.PAGE_START);
 
         // Load notes into list
@@ -133,4 +147,78 @@ public class NotesMainPanel extends JPanel {
         openNoteTab(newNote);
     }
 
+    // Save the currently focused note tab if dirty
+    private void saveCurrentTabIfDirty() {
+        Component comp = tabbedPane.getSelectedComponent();
+        if (comp instanceof NotePanel notePanel) {
+            // Only save if dirty
+            try {
+                java.lang.reflect.Field dirtyField = NotePanel.class.getDeclaredField("dirty");
+                dirtyField.setAccessible(true);
+                boolean isDirty = dirtyField.getBoolean(notePanel);
+                if (isDirty) {
+                    java.lang.reflect.Method saveMethod = NotePanel.class.getDeclaredMethod("saveNote");
+                    saveMethod.setAccessible(true);
+                    saveMethod.invoke(notePanel);
+                }
+            } catch (Exception ignored) {}
+        }
+    }
+
+    // Save all open note tabs that are dirty
+    private void saveAllTabsIfDirty() {
+        for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+            Component comp = tabbedPane.getComponentAt(i);
+            if (comp instanceof NotePanel notePanel) {
+                try {
+                    java.lang.reflect.Field dirtyField = NotePanel.class.getDeclaredField("dirty");
+                    dirtyField.setAccessible(true);
+                    boolean isDirty = dirtyField.getBoolean(notePanel);
+                    if (isDirty) {
+                        java.lang.reflect.Method saveMethod = NotePanel.class.getDeclaredMethod("saveNote");
+                        saveMethod.setAccessible(true);
+                        saveMethod.invoke(notePanel);
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
+    }
+    // Close all tabs, prompting if any are dirty
+    private void closeAllTabsWithPrompt() {
+        boolean anyDirty = false;
+        for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+            Component comp = tabbedPane.getComponentAt(i);
+            if (comp instanceof NotePanel notePanel) {
+                try {
+                    java.lang.reflect.Field dirtyField = NotePanel.class.getDeclaredField("dirty");
+                    dirtyField.setAccessible(true);
+                    if (dirtyField.getBoolean(notePanel)) {
+                        anyDirty = true;
+                        break;
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
+        if (!anyDirty) {
+            // No dirty notes, just close all
+            tabbedPane.removeAll();
+            return;
+        }
+        // Prompt user
+        int result = JOptionPane.showOptionDialog(
+            this,
+            "Some notes have unsaved changes. Save all and close?",
+            "Close All Notes",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE,
+            null,
+            new Object[] {"Save All and Close", "Cancel"},
+            "Save All and Close"
+        );
+        if (result == 0) { // Save All and Close
+            saveAllTabsIfDirty();
+            tabbedPane.removeAll();
+        }
+        // else Cancel: do nothing
+    }
 }

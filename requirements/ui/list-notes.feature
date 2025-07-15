@@ -28,5 +28,9 @@ Feature: List notes
         And each note should be identifiable by the note title and date created or updated
         And notes that are not shown immediately should be available via navigation
 
-
+    Scenario: Delete a note
+        Given the user has a note in the list
+        When the user chooses to deletes the not
+        Then the note content and metadata should be removed
+        And the list updated
     
