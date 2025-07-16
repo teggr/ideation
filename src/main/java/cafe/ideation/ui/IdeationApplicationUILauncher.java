@@ -1,6 +1,8 @@
 package cafe.ideation.ui;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import cafe.ideation.service.NoteService;
 import dev.rebelcraft.cli.App;
@@ -18,6 +20,8 @@ public class IdeationApplicationUILauncher implements CommandLineRunner {
     private final NoteService noteService;
     private final App app;
     private final AppDataDirectoryService appDataDirectoryService;
+
+    private JFrame mainFrame;
 
     public IdeationApplicationUILauncher(App app,
             AppDataDirectoryService appDataDirectoryService, NoteService noteService) {
@@ -44,7 +48,7 @@ public class IdeationApplicationUILauncher implements CommandLineRunner {
                 if (!appDataDirectoryService.isInitialised()) {
                     JOptionPane.showMessageDialog(promptFrame,
                             "You must choose an application data directory to continue.");
-                            promptFrame.dispose();
+                    promptFrame.dispose();
                     return;
                 }
                 promptFrame.dispose();
@@ -56,7 +60,7 @@ public class IdeationApplicationUILauncher implements CommandLineRunner {
 
             JMenuBar menuBar = new JMenuBar();
             JMenu fileMenu = new JMenu("File");
-            
+
             menuBar.add(fileMenu);
             frame.setJMenuBar(menuBar);
 
@@ -75,13 +79,24 @@ public class IdeationApplicationUILauncher implements CommandLineRunner {
 
                 JMenuItem createNoteItem = new JMenuItem("Create Note");
                 createNoteItem.addActionListener(e -> {
-                    Note  newNote = noteService.createNote();
+                    Note newNote = noteService.createNote();
                     notesMainPanel.showNote(newNote);
                 });
                 fileMenu.add(createNoteItem);
             }
+            this.mainFrame = frame;
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
+    }
+
+    @EventListener
+    public void onShutdown(ContextClosedEvent event) {
+        // Dispose the main frame on Spring context shutdown
+        if (mainFrame != null) {
+            SwingUtilities.invokeLater(() -> {
+                mainFrame.dispose();
+            });
+        }
     }
 }
