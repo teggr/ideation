@@ -63,7 +63,11 @@ public class NotesMainPanel extends JPanel {
             openNoteTab(notes.get(0));
         }
 
-        // Open note for editing on double-click
+        // Mouse listener for double-click (open) and right-click (popup menu)
+        JPopupMenu notesListPopup = new JPopupMenu();
+        JMenuItem placeholderMenuItem = new JMenuItem("(No actions yet)");
+        placeholderMenuItem.setEnabled(false);
+        notesListPopup.add(placeholderMenuItem);
         notesList.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -72,6 +76,23 @@ public class NotesMainPanel extends JPanel {
                     if (idx >= 0) {
                         Note selectedNote = listModel.getElementAt(idx);
                         openNoteTab(selectedNote);
+                    }
+                }
+            }
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                maybeShowPopup(e);
+            }
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                maybeShowPopup(e);
+            }
+            private void maybeShowPopup(java.awt.event.MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    int idx = notesList.locationToIndex(e.getPoint());
+                    if (idx >= 0) {
+                        notesList.setSelectedIndex(idx);
+                        notesListPopup.show(notesList, e.getX(), e.getY());
                     }
                 }
             }
