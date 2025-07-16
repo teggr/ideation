@@ -3,7 +3,7 @@ package cafe.ideation.service;
 import cafe.ideation.model.Note;
 import cafe.ideation.service.AppDataDirectoryService.DataCollection;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Properties;
 import java.security.SecureRandom;
 
-@Service
+@Component
 public class NoteService {
 
     private static DataCollection NOTES_DATA_COLLECTION = new DataCollection("notes"); 

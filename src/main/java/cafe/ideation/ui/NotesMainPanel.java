@@ -1,7 +1,7 @@
 package cafe.ideation.ui;
 
 import cafe.ideation.model.Note;
-import cafe.ideation.service.NoteService;
+import cafe.ideation.service.NoteApplicationService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,13 +12,13 @@ import java.util.List;
 
 public class NotesMainPanel extends JPanel {
  
-    private final NoteService noteService;
+    private final NoteApplicationService noteApplicationService;
     private final JList<Note> notesList;
     private final DefaultListModel<Note> listModel;
     private final JTabbedPane tabbedPane;
 
-    public NotesMainPanel(NoteService noteService) {
-        this.noteService = noteService;
+    public NotesMainPanel(NoteApplicationService noteApplicationService) {
+        this.noteApplicationService = noteApplicationService;
         setLayout(new BorderLayout());
 
         listModel = new DefaultListModel<>();
@@ -30,7 +30,7 @@ public class NotesMainPanel extends JPanel {
         JToolBar toolBar = new JToolBar();
         JButton createNoteButton = new JButton("Create Note");
         createNoteButton.addActionListener(e -> {
-            Note newNote = noteService.createNote();
+            Note newNote = noteApplicationService.createNote();
             listModel.addElement(newNote);
             notesList.setSelectedValue(newNote, true);
             openNoteTab(newNote);
@@ -52,7 +52,7 @@ public class NotesMainPanel extends JPanel {
         add(toolBar, BorderLayout.PAGE_START);
 
         // Load notes into list
-        List<Note> notes = noteService.listNotes();
+        List<Note> notes = noteApplicationService.listNotes();
         for (Note note : notes) {
             listModel.addElement(note);
         }
@@ -70,7 +70,6 @@ public class NotesMainPanel extends JPanel {
                 }
             }
         });
-
         notesList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -114,7 +113,7 @@ public class NotesMainPanel extends JPanel {
                 return;
             }
         }
-        NotePanel notePanel = new NotePanel(note, noteService);
+        NotePanel notePanel = new NotePanel(note, noteApplicationService);
         JButton closeButton = new JButton("Close");
         JPanel tabHeader = new JPanel(new BorderLayout());
         JLabel titleLabel = new JLabel(tabTitle);

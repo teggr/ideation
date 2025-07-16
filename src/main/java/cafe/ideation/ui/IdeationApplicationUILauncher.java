@@ -4,8 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import cafe.ideation.service.NoteService;
-import dev.rebelcraft.cli.App;
+import cafe.ideation.service.NoteApplicationService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,17 +16,15 @@ import com.formdev.flatlaf.FlatLightLaf;
 @Component
 public class IdeationApplicationUILauncher implements CommandLineRunner {
 
-    private final NoteService noteService;
-    private final App app;
+    private final NoteApplicationService noteApplicationService;
     private final AppDataDirectoryService appDataDirectoryService;
 
     private JFrame mainFrame;
 
-    public IdeationApplicationUILauncher(App app,
-            AppDataDirectoryService appDataDirectoryService, NoteService noteService) {
-        this.app = app;
+    public IdeationApplicationUILauncher(
+            AppDataDirectoryService appDataDirectoryService, NoteApplicationService noteApplicationService) {
         this.appDataDirectoryService = appDataDirectoryService;
-        this.noteService = noteService;
+        this.noteApplicationService = noteApplicationService;
     }
 
     @Override
@@ -64,22 +61,22 @@ public class IdeationApplicationUILauncher implements CommandLineRunner {
             menuBar.add(fileMenu);
             frame.setJMenuBar(menuBar);
 
-            if (noteService.getNoteCount() == 0) {
-                WelcomePanel welcomePanel = new WelcomePanel(noteService, () -> {
+            if (noteApplicationService.getNoteCount() == 0) {
+                WelcomePanel welcomePanel = new WelcomePanel(noteApplicationService, () -> {
                     frame.getContentPane().removeAll();
-                    NotesMainPanel notesMainPanel = new NotesMainPanel(noteService);
+                    NotesMainPanel notesMainPanel = new NotesMainPanel(noteApplicationService);
                     frame.add(notesMainPanel, BorderLayout.CENTER);
                     frame.revalidate();
                     frame.repaint();
                 });
                 frame.add(welcomePanel, BorderLayout.CENTER);
             } else {
-                NotesMainPanel notesMainPanel = new NotesMainPanel(noteService);
+                NotesMainPanel notesMainPanel = new NotesMainPanel(noteApplicationService);
                 frame.add(notesMainPanel, BorderLayout.CENTER);
 
                 JMenuItem createNoteItem = new JMenuItem("Create Note");
                 createNoteItem.addActionListener(e -> {
-                    Note newNote = noteService.createNote();
+                    Note newNote = noteApplicationService.createNote();
                     notesMainPanel.showNote(newNote);
                 });
                 fileMenu.add(createNoteItem);
@@ -99,4 +96,5 @@ public class IdeationApplicationUILauncher implements CommandLineRunner {
             });
         }
     }
+    
 }

@@ -2,7 +2,7 @@ package cafe.ideation.ui;
 
 
 import cafe.ideation.model.Note;
-import cafe.ideation.service.NoteService;
+import cafe.ideation.service.NoteApplicationService;
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.event.DocumentEvent;
@@ -13,16 +13,16 @@ import java.util.function.Consumer;
 public class NotePanel extends JPanel {
     private final Note note;
     private final JTextArea contentArea;
-    private final NoteService noteService;
+    private final NoteApplicationService noteApplicationService;
     private boolean dirty = false;
     private final JLabel titleLabel;
     private final JButton saveButton;
     private Consumer<String> onTitleChanged;
     private Runnable onNoteSaved;
 
-    public NotePanel(Note note, NoteService noteService) {
+    public NotePanel(Note note, NoteApplicationService noteApplicationService) {
         this.note = note;
-        this.noteService = noteService;
+        this.noteApplicationService = noteApplicationService;
         setLayout(new BorderLayout());
         contentArea = new JTextArea(note.getContent());
         add(new JScrollPane(contentArea), BorderLayout.CENTER);
@@ -80,7 +80,7 @@ public class NotePanel extends JPanel {
     private void saveNote() {
         String newContent = contentArea.getText();
         String oldTitle = note.getTitle();
-        noteService.saveNote(note, newContent);
+        noteApplicationService.saveNote(note, newContent);
         setDirty(false);
         // Update title label if changed
         String newTitle = getTabTitle();
