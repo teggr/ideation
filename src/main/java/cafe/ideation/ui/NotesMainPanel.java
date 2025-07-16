@@ -63,10 +63,16 @@ public class NotesMainPanel extends JPanel {
             openNoteTab(notes.get(0));
         }
 
-        notesList.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                for (Note selectedNote : notesList.getSelectedValuesList()) {
-                    openNoteTab(selectedNote);
+        // Open note for editing on double-click
+        notesList.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                    int idx = notesList.locationToIndex(e.getPoint());
+                    if (idx >= 0) {
+                        Note selectedNote = listModel.getElementAt(idx);
+                        openNoteTab(selectedNote);
+                    }
                 }
             }
         });
